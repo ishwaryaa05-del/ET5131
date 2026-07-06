@@ -1,0 +1,135 @@
+// CareerBridge data model
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Market {
+  SINGAPORE
+  MALAYSIA
+  MYANMAR
+}
+
+enum PracticeLanguage {
+  ENGLISH
+  BURMESE
+  MALAY
+  TAMIL
+  MIXED
+}
+
+enum RoleLevel {
+  INTERNSHIP
+  ENTRY_LEVEL
+  ASSOCIATE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+
+  profile           Profile?
+  jobDescriptions   JobDescription[]
+  resumes           Resume[]
+  interviewSessions InterviewSession[]
+  riasecResults     RiasecResult[]
+  skillGapReports   SkillGapReport[]
+}
+
+model Profile {
+  id               String           @id @default(cuid())
+  userId           String           @unique
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  market           Market
+  industry         String
+  practiceLanguage PracticeLanguage
+  updatedAt        DateTime         @updatedAt
+}
+
+model JobDescription {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  rawText   String
+  industry  String
+  roleLevel RoleLevel
+  source    String // "pasted" | "pdf"
+  createdAt DateTime  @default(now())
+
+  questionSet       InterviewQuestionSet?
+  interviewSessions InterviewSession[]
+  skillGapReports   SkillGapReport[]
+}
+
+model InterviewQuestionSet {
+  id        String         @id @default(cuid())
+  jdId      String         @unique
+  jd        JobDescription @relation(fields: [jdId], references: [id], onDelete: Cascade)
+  questions Json // [{ question, strongAnswerNote }]
+  createdAt DateTime       @default(now())
+}
+
+model InterviewSession {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jdId      String
+  jd        JobDescription @relation(fields: [jdId], references: [id], onDelete: Cascade)
+  language  PracticeLanguage
+  startedAt DateTime  @default(now())
+
+  turns InterviewTurn[]
+}
+
+model InterviewTurn {
+  id             String           @id @default(cuid())
+  sessionId      String
+  session        InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionIndex  Int
+  questionText   String
+  answerText     String
+  answerLanguage PracticeLanguage
+  feedback       Json // { contentScore, deliveryScore, culturalFitScore, dualTongueNotes:[{original,issue,suggestedEnglish}], summary }
+  createdAt      DateTime         @default(now())
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rawText   String
+  source    String // "pasted" | "pdf"
+  tailoring Json? // { formatSuggestions:[], contentSuggestions:[], targetJdId }
+  createdAt DateTime @default(now())
+}
+
+model RiasecResult {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers        Json // [{itemId, score}]
+  scores         Json // { R,I,A,S,E,C }
+  code           String // e.g. "RIA"
+  interpretation Json // { summary, marketNotes:[], strengths:[], watchOuts:[] }
+  createdAt      DateTime @default(now())
+}
+
+model SkillGapReport {
+  id        String          @id @default(cuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jdId      String
+  jd        JobDescription  @relation(fields: [jdId], references: [id], onDelete: Cascade)
+  resumeId  String
+  gaps      Json // [{ skill, why, courses:[{platform,title,url}] }]
+  createdAt DateTime        @default(now())
+}

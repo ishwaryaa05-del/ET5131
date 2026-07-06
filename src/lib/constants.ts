@@ -1,0 +1,41 @@
+export const MARKET_VALUES = ["SINGAPORE", "MALAYSIA", "MYANMAR"] as const;
+export type MarketValue = (typeof MARKET_VALUES)[number];
+
+export const MARKET_LABELS: Record<MarketValue, string> = {
+  SINGAPORE: "Singapore",
+  MALAYSIA: "Malaysia",
+  MYANMAR: "Myanmar",
+};
+
+export const LANGUAGE_VALUES = ["ENGLISH", "BURMESE", "MALAY", "TAMIL", "MIXED"] as const;
+export type LanguageValue = (typeof LANGUAGE_VALUES)[number];
+
+export const LANGUAGE_LABELS: Record<LanguageValue, string> = {
+  ENGLISH: "English",
+  BURMESE: "Burmese",
+  MALAY: "Malay",
+  TAMIL: "Tamil",
+  MIXED: "Mixed / code-switching",
+};
+
+export const ROLE_LEVEL_VALUES = ["INTERNSHIP", "ENTRY_LEVEL", "ASSOCIATE"] as const;
+export type RoleLevelValue = (typeof ROLE_LEVEL_VALUES)[number];
+
+export const ROLE_LEVEL_LABELS: Record<RoleLevelValue, string> = {
+  INTERNSHIP: "Internship",
+  ENTRY_LEVEL: "Entry-level",
+  ASSOCIATE: "Associate",
+};
+
+export const INDUSTRY_SUGGESTIONS = [
+  "Banking & Finance",
+  "Technology / Software",
+  "Consulting",
+  "Marketing & Creative",
+  "Manufacturing & Engineering",
+  "Healthcare",
+  "Education",
+  "Retail & E-commerce",
+  "Logistics & Supply Chain",
+  "Public Sector",
+];
