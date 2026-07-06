@@ -33,20 +33,20 @@ export function AppNav({
   return (
     <aside className="flex w-full flex-col justify-between border-b border-border bg-card px-4 py-4 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r lg:px-5 lg:py-6">
       <div>
-        <Link href="/dashboard" className="text-lg font-semibold tracking-tight text-brand">
+        <Link href="/dashboard" className="font-serif text-lg font-semibold tracking-tight text-brand">
           CareerBridge
         </Link>
-        <nav className="mt-6 flex flex-row flex-wrap gap-1 lg:mt-8 lg:flex-col">
+        <nav className="mt-6 flex flex-row flex-wrap gap-1 lg:mt-8 lg:flex-col lg:gap-0.5">
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
                 key={item.href}
                 href={hasProfile ? item.href : "/onboarding"}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                className={`border-l-2 px-3 py-2 text-sm font-medium transition-colors ${
                   active
-                    ? "bg-brand-soft text-brand-dark"
-                    : "text-muted hover:bg-brand-soft hover:text-brand-dark"
+                    ? "border-brand text-brand-dark"
+                    : "border-transparent text-muted hover:border-border hover:text-foreground"
                 }`}
               >
                 {item.label}
@@ -60,9 +60,14 @@ export function AppNav({
           <p className="text-sm font-medium">{name}</p>
           {market && <p className="text-xs text-muted">{MARKET_LABELS[market]}</p>}
         </div>
-        <button onClick={logout} className="text-sm font-medium text-muted hover:text-brand">
-          Log out
-        </button>
+        <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-2">
+          <Link href="/about" className="text-sm text-muted hover:text-brand">
+            About us
+          </Link>
+          <button onClick={logout} className="text-sm font-medium text-muted hover:text-brand">
+            Log out
+          </button>
+        </div>
       </div>
     </aside>
   );

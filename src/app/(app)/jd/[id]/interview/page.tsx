@@ -89,7 +89,7 @@ export default async function JdInterviewPage({
                 <Link
                   key={s.id}
                   href={`/jd/${jd.id}/interview/session/${s.id}`}
-                  className="card flex flex-wrap items-center justify-between gap-2 p-4 hover:shadow-md"
+                  className="card flex flex-wrap items-center justify-between gap-2 p-4 transition-colors hover:border-brand"
                 >
                   <span className="text-sm">
                     {s.startedAt.toLocaleString()} · {s.turns.length} answered · language: {s.language}

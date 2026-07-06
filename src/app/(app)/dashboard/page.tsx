@@ -171,7 +171,7 @@ function DashboardCard({
   cta: string;
 }) {
   return (
-    <Link href={href} className="card flex flex-col gap-2 p-5 hover:shadow-md">
+    <Link href={href} className="card flex flex-col gap-2 p-5 transition-colors hover:border-brand">
       <h3 className="font-semibold">{title}</h3>
       <div className="text-sm">{body}</div>
       <span className="mt-auto pt-2 text-sm font-medium text-brand">{cta} →</span>

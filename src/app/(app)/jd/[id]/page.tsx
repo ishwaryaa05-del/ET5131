@@ -26,19 +26,19 @@ export default async function JdDetailPage({
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Link href={`/jd/${jd.id}/interview`} className="card p-5 hover:shadow-md">
+        <Link href={`/jd/${jd.id}/interview`} className="card p-5 transition-colors hover:border-brand">
           <h3 className="font-semibold">Interview questions</h3>
           <p className="mt-1 text-sm text-muted">
             Generate market-calibrated questions and practice with Dual-Tongue coaching.
           </p>
         </Link>
-        <Link href={`/resume?jdId=${jd.id}`} className="card p-5 hover:shadow-md">
+        <Link href={`/resume?jdId=${jd.id}`} className="card p-5 transition-colors hover:border-brand">
           <h3 className="font-semibold">Tailor resume</h3>
           <p className="mt-1 text-sm text-muted">
             Check your resume against this JD and local market norms.
           </p>
         </Link>
-        <Link href={`/skills?jdId=${jd.id}`} className="card p-5 hover:shadow-md">
+        <Link href={`/skills?jdId=${jd.id}`} className="card p-5 transition-colors hover:border-brand">
           <h3 className="font-semibold">Skill gaps</h3>
           <p className="mt-1 text-sm text-muted">
             Find exactly what&apos;s missing and get matched to courses.

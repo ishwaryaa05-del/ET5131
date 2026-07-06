@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f7fb;
-  --foreground: #16161d;
-  --card: #ffffff;
-  --border: #e5e5ee;
-  --muted: #6b6b7b;
-  --brand: #0f6e5c;
-  --brand-dark: #0b5346;
-  --brand-soft: #e3f3ee;
-  --accent: #c2612d;
+  --background: #f4efe6;
+  --foreground: #241f18;
+  --card: #fbf8f2;
+  --border: #ddd2bd;
+  --muted: #71675a;
+  --brand: #a1462a;
+  --brand-dark: #7c3520;
+  --brand-soft: #f0dfce;
+  --accent: #35615c;
 }
 
 @theme inline {
@@ -22,47 +22,55 @@
   --color-brand-dark: var(--brand-dark);
   --color-brand-soft: var(--brand-soft);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b0c10;
-    --foreground: #eceef0;
-    --card: #15171c;
-    --border: #262932;
-    --muted: #9297a3;
-    --brand: #2fa88a;
-    --brand-dark: #1f8871;
-    --brand-soft: #10241f;
-    --accent: #e08a52;
+    --background: #1c1712;
+    --foreground: #ede6d9;
+    --card: #241e17;
+    --border: #3c3226;
+    --muted: #a99d89;
+    --brand: #d9814f;
+    --brand-dark: #ab5c34;
+    --brand-soft: #34281d;
+    --accent: #6ba39c;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Georgia, serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.01em;
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-border bg-card shadow-sm;
+    @apply rounded border border-border bg-card;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-brand px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand disabled:cursor-not-allowed disabled:opacity-50;
   }
   .input {
-    @apply w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20;
+    @apply w-full rounded-sm border border-border bg-card px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30;
   }
   .label {
     @apply mb-1.5 block text-sm font-medium text-foreground;
   }
   .badge {
-    @apply inline-flex items-center rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand-dark;
+    @apply inline-flex items-center gap-1 border-b border-brand/40 px-0.5 pb-px text-xs font-medium uppercase tracking-wide text-brand-dark;
   }
 }

@@ -64,7 +64,7 @@ export function RiasecQuiz() {
             {SCALE.map((opt) => (
               <label
                 key={opt.value}
-                className={`flex cursor-pointer flex-col items-center gap-1 rounded-lg border px-2 py-2 text-center text-xs transition-colors ${
+                className={`flex cursor-pointer flex-col items-center gap-1 rounded-sm border px-2 py-2 text-center text-xs transition-colors ${
                   answers[item.id] === opt.value
                     ? "border-brand bg-brand-soft text-brand-dark"
                     : "border-border hover:bg-brand-soft/50"

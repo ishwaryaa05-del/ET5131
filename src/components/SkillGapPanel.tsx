@@ -105,7 +105,7 @@ export function SkillGapPanel({
                       href={c.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="badge hover:bg-brand hover:text-white"
+                      className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-xs font-medium transition-colors hover:border-brand hover:bg-brand-soft"
                     >
                       {c.platform} ↗
                     </a>

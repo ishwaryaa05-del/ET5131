@@ -36,7 +36,7 @@ export function QuestionCard({
           Reveal what a strong answer looks like
         </button>
       ) : (
-        <div className="mt-3 rounded-lg bg-brand-soft p-4">
+        <div className="mt-3 rounded-sm bg-brand-soft p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">
             Strong answer in this market
           </p>

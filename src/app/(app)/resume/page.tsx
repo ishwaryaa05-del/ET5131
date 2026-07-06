@@ -81,7 +81,7 @@ export default async function ResumePage({
                 <h3 className="font-semibold">Content suggestions</h3>
                 <div className="mt-3 flex flex-col gap-4">
                   {tailoring.contentSuggestions.map((c, i) => (
-                    <div key={i} className="rounded-lg border border-border p-4">
+                    <div key={i} className="rounded-sm border border-border p-4">
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                         Original
                       </p>

@@ -38,7 +38,7 @@ export default async function JdListPage() {
             <Link
               key={jd.id}
               href={`/jd/${jd.id}`}
-              className="card flex flex-col gap-2 p-5 transition-shadow hover:shadow-md"
+              className="card flex flex-col gap-2 p-5 transition-colors hover:border-brand"
             >
               <div className="flex items-center justify-between gap-2">
                 <h3 className="font-semibold">{jd.title}</h3>

@@ -249,7 +249,7 @@ function TurnReview({ turn }: { turn: Turn }) {
             Dual-Tongue coaching
           </p>
           {turn.feedback.dualTongueNotes.map((note, i) => (
-            <div key={i} className="rounded-lg bg-brand-soft p-3 text-sm">
+            <div key={i} className="rounded-sm bg-brand-soft p-3 text-sm">
               <p>
                 <span className="font-medium">You said:</span> &quot;{note.original}&quot;
               </p>
