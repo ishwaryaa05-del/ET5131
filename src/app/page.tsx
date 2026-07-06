@@ -35,20 +35,22 @@ const FEATURES = [
 
 export default function Home() {
   return (
-    <div className="flex flex-1 flex-col bg-background">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
-        <span className="font-serif text-lg font-semibold tracking-tight">CareerBridge</span>
-        <nav className="flex items-center gap-5 text-sm">
-          <Link href="/about" className="text-muted hover:text-brand">
-            About us
-          </Link>
-          <Link href="/login" className="text-muted hover:text-brand">
-            Log in
-          </Link>
-          <Link href="/signup" className="btn-primary">
-            Get started
-          </Link>
-        </nav>
+    <div className="flex flex-1 flex-col">
+      <header className="glass sticky top-0 z-10 border-x-0 border-t-0">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
+          <span className="font-serif text-lg font-semibold tracking-tight">CareerBridge</span>
+          <nav className="flex items-center gap-5 text-sm">
+            <Link href="/about" className="text-muted hover:text-brand">
+              About us
+            </Link>
+            <Link href="/login" className="text-muted hover:text-brand">
+              Log in
+            </Link>
+            <Link href="/signup" className="btn-primary">
+              Get started
+            </Link>
+          </nav>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 pb-24">
@@ -72,7 +74,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 border-t border-border pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-10">
+          <div className="card flex flex-col gap-5 p-8">
             <p className="font-serif text-lg leading-8">
               &ldquo;Strong candidates lose their edge not because they lack substance, but
               because translating a sharp thought into precise corporate English under pressure

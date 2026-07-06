@@ -7,7 +7,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-background lg:flex-row">
+    <div className="flex min-h-screen flex-1 flex-col lg:flex-row">
       <AppNav
         name={user.name}
         market={user.profile?.market ?? null}

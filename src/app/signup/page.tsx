@@ -3,7 +3,7 @@ import { AuthForm } from "@/components/AuthForm";
 
 export default function SignupPage() {
   return (
-    <div className="flex flex-1 items-center justify-center bg-background px-6 py-12">
+    <div className="flex flex-1 items-center justify-center px-6 py-12">
       <div className="card w-full max-w-md p-8">
         <Link href="/" className="text-sm font-semibold text-brand">
           CareerBridge

@@ -31,7 +31,7 @@ export function AppNav({
   }
 
   return (
-    <aside className="flex w-full flex-col justify-between border-b border-border bg-card px-4 py-4 lg:h-screen lg:w-64 lg:border-b-0 lg:border-r lg:px-5 lg:py-6">
+    <aside className="glass flex w-full flex-col justify-between px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:px-5 lg:py-6">
       <div>
         <Link href="/dashboard" className="font-serif text-lg font-semibold tracking-tight text-brand">
           CareerBridge

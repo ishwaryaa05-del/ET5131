@@ -5,7 +5,7 @@ export default async function AboutPage() {
   const user = await getCurrentUser();
 
   return (
-    <div className="flex flex-1 flex-col bg-background">
+    <div className="flex flex-1 flex-col">
       <header className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-6">
         <Link href="/" className="font-serif text-lg font-semibold tracking-tight">
           CareerBridge

@@ -45,6 +45,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), Georgia, serif;
+  position: relative;
 }
 
 h1,
@@ -54,23 +55,42 @@ h3 {
   letter-spacing: -0.01em;
 }
 
+/* Soft, blurred color fields fixed behind the whole app so glass surfaces
+   have something to refract — flat glass over a flat background is invisible. */
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(40rem 40rem at 8% -10%, color-mix(in oklab, var(--brand) 75%, transparent), transparent 72%),
+    radial-gradient(36rem 36rem at 102% 6%, color-mix(in oklab, var(--accent) 75%, transparent), transparent 72%),
+    radial-gradient(34rem 34rem at 15% 105%, color-mix(in oklab, var(--accent) 65%, transparent), transparent 72%),
+    radial-gradient(34rem 34rem at 92% 100%, color-mix(in oklab, var(--brand) 65%, transparent), transparent 72%),
+    radial-gradient(26rem 26rem at 50% 45%, color-mix(in oklab, var(--brand) 30%, transparent), transparent 75%);
+  filter: blur(50px) saturate(160%);
+}
+
 @layer components {
+  .glass {
+    @apply border border-white/50 bg-card/35 backdrop-blur-xl dark:border-white/10 dark:bg-card/30;
+  }
   .card {
-    @apply rounded border border-border bg-card;
+    @apply rounded-2xl border border-white/50 bg-card/35 backdrop-blur-xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_10px_30px_-14px_rgba(36,26,15,0.25)] dark:border-white/10 dark:bg-card/30 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_10px_30px_-14px_rgba(0,0,0,0.55)];
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-brand px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-brand/85 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_6px_18px_-8px_rgba(124,53,32,0.55)] hover:bg-brand-dark/90 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-brand disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/50 bg-white/20 px-4 py-2.5 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:border-brand hover:bg-white/35 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10;
   }
   .input {
-    @apply w-full rounded-sm border border-border bg-card px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/30;
+    @apply w-full rounded-xl border border-white/50 bg-white/30 px-3.5 py-2.5 text-sm text-foreground backdrop-blur-md placeholder:text-muted focus:border-brand focus:bg-white/50 focus:outline-none focus:ring-1 focus:ring-brand/30 dark:border-white/10 dark:bg-white/5 dark:focus:bg-white/10;
   }
   .label {
     @apply mb-1.5 block text-sm font-medium text-foreground;
   }
   .badge {
-    @apply inline-flex items-center gap-1 border-b border-brand/40 px-0.5 pb-px text-xs font-medium uppercase tracking-wide text-brand-dark;
+    @apply inline-flex items-center gap-1 rounded-full border border-white/50 bg-white/25 px-2.5 py-1 text-xs font-medium text-brand-dark backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-brand;
   }
 }
