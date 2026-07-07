@@ -26,7 +26,55 @@ export function isAIEnabled() {
   return getClient() !== null;
 }
 
-/** Sends a prompt and parses a strict-JSON reply against a zod schema. */
+/** Pulls the largest balanced {...} or [...] substring out of text with leading/trailing prose. */
+function extractJsonSubstring(text: string): string {
+  const openers = ["{", "["];
+  const closers: Record<string, string> = { "{": "}", "[": "]" };
+  let start = -1;
+  for (let i = 0; i < text.length; i++) {
+    if (openers.includes(text[i])) {
+      start = i;
+      break;
+    }
+  }
+  if (start === -1) return text;
+
+  const opener = text[start];
+  const closer = closers[opener];
+  let depth = 0;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === opener) depth++;
+    else if (text[i] === closer) {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return text.slice(start);
+}
+
+async function callOnce<T>(anthropic: Anthropic, opts: { system: string; prompt: string; schema: z.ZodType<T>; maxTokens?: number }) {
+  const message = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: opts.maxTokens ?? 3000,
+    system: `${opts.system}\n\nRespond with ONLY a single valid JSON value matching the requested shape. No markdown fences, no commentary before or after. Any quoted excerpt must be valid inside a JSON string — escape quotes, backslashes, and newlines properly.`,
+    messages: [{ role: "user", content: opts.prompt }],
+  });
+
+  const textBlock = message.content.find((block) => block.type === "text");
+  const raw = textBlock && "text" in textBlock ? textBlock.text : "";
+  const fenceStripped = raw.trim().replace(/^```(json)?/i, "").replace(/```$/, "").trim();
+
+  let parsedJson: unknown;
+  try {
+    parsedJson = JSON.parse(fenceStripped);
+  } catch {
+    parsedJson = JSON.parse(extractJsonSubstring(fenceStripped));
+  }
+
+  return opts.schema.parse(parsedJson);
+}
+
+/** Sends a prompt and parses a strict-JSON reply against a zod schema. Retries once on a malformed/invalid response. */
 export async function askForJSON<T>(opts: {
   system: string;
   prompt: string;
@@ -36,29 +84,15 @@ export async function askForJSON<T>(opts: {
   const anthropic = getClient();
   if (!anthropic) throw new AIUnavailableError();
 
-  const message = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: opts.maxTokens ?? 3000,
-    system: `${opts.system}\n\nRespond with ONLY a single valid JSON value matching the requested shape. No markdown fences, no commentary before or after.`,
-    messages: [{ role: "user", content: opts.prompt }],
-  });
-
-  const textBlock = message.content.find((block) => block.type === "text");
-  const raw = textBlock && "text" in textBlock ? textBlock.text : "";
-  const cleaned = raw.trim().replace(/^```(json)?/i, "").replace(/```$/, "").trim();
-
-  let parsedJson: unknown;
   try {
-    parsedJson = JSON.parse(cleaned);
+    return await callOnce(anthropic, opts);
   } catch {
-    throw new Error("The AI response could not be parsed. Please try again.");
+    try {
+      return await callOnce(anthropic, opts);
+    } catch {
+      throw new Error("The AI response could not be parsed. Please try again.");
+    }
   }
-
-  const result = opts.schema.safeParse(parsedJson);
-  if (!result.success) {
-    throw new Error("The AI response did not match the expected format. Please try again.");
-  }
-  return result.data;
 }
 
 function marketContext(market: MarketValue, industry: string) {
