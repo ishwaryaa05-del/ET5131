@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { LANGUAGE_VALUES, LANGUAGE_LABELS, type LanguageValue, type MarketValue } from "@/lib/constants";
 import { pickInterviewer } from "@/lib/interviewer";
-import { speak, cancelSpeech, isSpeechSynthesisSupported } from "@/lib/speech";
+import { speak, cancelSpeech, isSpeechSynthesisSupported, describeSpeechError } from "@/lib/speech";
 import { InterviewerAvatar, type AvatarState } from "@/components/InterviewerAvatar";
 
 type DualTongueNote = { original: string; issue: string; suggestedEnglish: string };
@@ -78,6 +78,7 @@ export function InterviewSimulator({
   const [error, setError] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [speechInputSupported, setSpeechInputSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -110,7 +111,13 @@ export function InterviewSimulator({
   // click — browsers like Safari silently drop it if triggered from an effect
   // or after an awaited fetch, so every playback here is button-initiated.
   function playAloud(text: string) {
-    speak(text, { lang: "en-US", onStart: () => setSpeaking(true), onEnd: () => setSpeaking(false) });
+    setVoiceError(null);
+    speak(text, {
+      lang: "en-US",
+      onStart: () => setSpeaking(true),
+      onEnd: () => setSpeaking(false),
+      onError: (reason) => setVoiceError(describeSpeechError(reason)),
+    });
   }
 
   function toggleRecording() {
@@ -236,6 +243,7 @@ export function InterviewSimulator({
             {speaking ? `🔊 ${interviewer.name.split(" ")[0]} is speaking…` : `🔊 Hear ${interviewer.name.split(" ")[0]} ask this`}
           </button>
         )}
+        {voiceError && <p className="mt-2 text-xs text-red-700 dark:text-red-300">{voiceError}</p>}
 
         <div className="mt-5 flex items-center gap-3">
           <select
@@ -291,6 +299,7 @@ function TurnReview({
   voiceSupported: boolean;
 }) {
   const [speaking, setSpeaking] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
 
   return (
     <div className="card p-6">
@@ -314,20 +323,25 @@ function TurnReview({
         <p className="flex-1 text-sm leading-6">{turn.feedback.summary}</p>
       </div>
       {voiceSupported && (
-        <button
-          type="button"
-          onClick={() =>
-            speak(turn.feedback.summary, {
-              lang: "en-US",
-              onStart: () => setSpeaking(true),
-              onEnd: () => setSpeaking(false),
-            })
-          }
-          disabled={speaking}
-          className="mt-2 text-xs font-medium text-brand hover:underline disabled:opacity-50"
-        >
-          {speaking ? "🔊 Speaking…" : "🔊 Hear feedback"}
-        </button>
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              setVoiceError(null);
+              speak(turn.feedback.summary, {
+                lang: "en-US",
+                onStart: () => setSpeaking(true),
+                onEnd: () => setSpeaking(false),
+                onError: (reason) => setVoiceError(describeSpeechError(reason)),
+              });
+            }}
+            disabled={speaking}
+            className="mt-2 text-xs font-medium text-brand hover:underline disabled:opacity-50"
+          >
+            {speaking ? "🔊 Speaking…" : "🔊 Hear feedback"}
+          </button>
+          {voiceError && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{voiceError}</p>}
+        </>
       )}
 
       {turn.feedback.dualTongueNotes.length > 0 && (
