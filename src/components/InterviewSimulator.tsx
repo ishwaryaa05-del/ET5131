@@ -4,7 +4,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { LANGUAGE_VALUES, LANGUAGE_LABELS, type LanguageValue, type MarketValue } from "@/lib/constants";
 import { pickInterviewer } from "@/lib/interviewer";
-import { speak, cancelSpeech, isSpeechSynthesisSupported, describeSpeechError } from "@/lib/speech";
+import {
+  speak,
+  cancelSpeech,
+  isSpeechSynthesisSupported,
+  describeSpeechError,
+  describeRecognitionError,
+} from "@/lib/speech";
 import { InterviewerAvatar, type AvatarState } from "@/components/InterviewerAvatar";
 
 type DualTongueNote = { original: string; issue: string; suggestedEnglish: string };
@@ -25,14 +31,17 @@ type Turn = {
 type Question = { question: string; strongAnswerNote: string };
 
 // Minimal shape for the (non-standard, vendor-prefixed) Web Speech API.
+type SpeechRecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal: boolean };
+type SpeechRecognitionEventLike = { resultIndex: number; results: ArrayLike<SpeechRecognitionResultLike> };
 type SpeechRecognitionLike = {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
   start: () => void;
   stop: () => void;
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
   onend: (() => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
 };
 
 function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
@@ -79,6 +88,7 @@ export function InterviewSimulator({
   const [recording, setRecording] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [micError, setMicError] = useState<string | null>(null);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [speechInputSupported, setSpeechInputSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -130,6 +140,7 @@ export function InterviewSimulator({
       return;
     }
 
+    setMicError(null);
     cancelSpeech();
     setSpeaking(false);
     const recognition = new Recognition();
@@ -138,10 +149,16 @@ export function InterviewSimulator({
     recognition.interimResults = false;
     recognition.onresult = (event) => {
       let transcript = "";
-      for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript + " ";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) transcript += event.results[i][0].transcript + " ";
       }
-      setAnswerText((prev) => (prev ? prev + " " : "") + transcript.trim());
+      if (transcript.trim()) {
+        setAnswerText((prev) => (prev ? prev + " " : "") + transcript.trim());
+      }
+    };
+    recognition.onerror = (event) => {
+      setMicError(describeRecognitionError(event.error));
+      setRecording(false);
     };
     recognition.onend = () => setRecording(false);
     recognitionRef.current = recognition;
@@ -267,6 +284,7 @@ export function InterviewSimulator({
             </button>
           )}
         </div>
+        {micError && <p className="mt-2 text-xs text-red-700 dark:text-red-300">{micError}</p>}
 
         <textarea
           className="input mt-3 min-h-[140px]"

@@ -82,6 +82,23 @@ export function cancelSpeech() {
   if (isSpeechSynthesisSupported()) window.speechSynthesis.cancel();
 }
 
+const RECOGNITION_ERROR_MESSAGES: Record<string, string> = {
+  "not-allowed": "Microphone access was blocked. Allow microphone access for this site in your browser's settings and try again.",
+  "service-not-allowed": "Microphone access was blocked. Allow microphone access for this site in your browser's settings and try again.",
+  "no-speech": "No speech was detected. Check that the right microphone is selected and try speaking again.",
+  "audio-capture": "No microphone was found. Check that a microphone is connected and selected in your system settings.",
+  network: "A network error interrupted speech recognition. Check your connection and try again.",
+  aborted: "Recording was stopped before anything was captured.",
+  "language-not-supported": "This language isn't supported for speech recognition in your browser.",
+};
+
+export function describeRecognitionError(reason: string): string {
+  return (
+    RECOGNITION_ERROR_MESSAGES[reason] ??
+    `Couldn't capture your voice (${reason}). Check your microphone permissions and try again.`
+  );
+}
+
 /** For diagnostics: how many TTS voices the browser/OS currently exposes. */
 export function getVoiceCount(): number {
   if (!isSpeechSynthesisSupported()) return 0;
