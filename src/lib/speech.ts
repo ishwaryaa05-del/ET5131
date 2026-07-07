@@ -34,31 +34,54 @@ export function speak(
 ): boolean {
   if (!isSpeechSynthesisSupported()) return false;
 
-  window.speechSynthesis.cancel();
+  const synth = window.speechSynthesis;
 
-  waitForVoices().then(() => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = opts?.lang ?? "en-US";
-    utterance.rate = 1;
-    utterance.pitch = 1;
+  function queue() {
+    waitForVoices().then(() => {
+      try {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = opts?.lang ?? "en-US";
+        utterance.rate = 1;
+        utterance.pitch = 1;
 
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length === 0) {
-      opts?.onError?.("no-voices-installed");
-      opts?.onEnd?.();
-      return;
-    }
-    const match = voices.find((v) => v.lang === utterance.lang) ?? voices.find((v) => v.lang.startsWith("en"));
-    if (match) utterance.voice = match;
+        const voices = synth.getVoices();
+        if (voices.length === 0) {
+          opts?.onError?.("no-voices-installed");
+          opts?.onEnd?.();
+          return;
+        }
+        const match = voices.find((v) => v.lang === utterance.lang) ?? voices.find((v) => v.lang.startsWith("en"));
+        if (match) {
+          try {
+            utterance.voice = match;
+          } catch {
+            // Fall back to the browser's default voice for this language.
+          }
+        }
 
-    if (opts?.onStart) utterance.onstart = opts.onStart;
-    if (opts?.onEnd) utterance.onend = opts.onEnd;
-    utterance.onerror = (event) => {
-      opts?.onError?.(event.error ?? "unknown-error");
-      opts?.onEnd?.();
-    };
-    window.speechSynthesis.speak(utterance);
-  });
+        if (opts?.onStart) utterance.onstart = opts.onStart;
+        if (opts?.onEnd) utterance.onend = opts.onEnd;
+        utterance.onerror = (event) => {
+          opts?.onError?.(event.error ?? "unknown-error");
+          opts?.onEnd?.();
+        };
+        synth.speak(utterance);
+      } catch {
+        opts?.onError?.("unknown-error");
+        opts?.onEnd?.();
+      }
+    });
+  }
+
+  // Calling speak() right after cancel() is a known Chrome/WebKit race: the new
+  // utterance can report itself as "canceled" before ever playing. Only cancel
+  // (and give it a moment to settle) when something is actually in progress.
+  if (synth.speaking || synth.pending) {
+    synth.cancel();
+    setTimeout(queue, 50);
+  } else {
+    queue();
+  }
 
   return true;
 }
