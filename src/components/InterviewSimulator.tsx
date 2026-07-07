@@ -1,8 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { LANGUAGE_VALUES, LANGUAGE_LABELS, type LanguageValue } from "@/lib/constants";
+import { LANGUAGE_VALUES, LANGUAGE_LABELS, type LanguageValue, type MarketValue } from "@/lib/constants";
+import { pickInterviewer } from "@/lib/interviewer";
+import { speak, cancelSpeech, isSpeechSynthesisSupported } from "@/lib/speech";
+import { InterviewerAvatar, type AvatarState } from "@/components/InterviewerAvatar";
 
 type DualTongueNote = { original: string; issue: string; suggestedEnglish: string };
 type Feedback = {
@@ -59,12 +62,14 @@ export function InterviewSimulator({
   questions,
   initialTurns,
   defaultLanguage,
+  market,
 }: {
   sessionId: string;
   jdId: string;
   questions: Question[];
   initialTurns: Turn[];
   defaultLanguage: LanguageValue;
+  market: MarketValue;
 }) {
   const [turns, setTurns] = useState<Turn[]>(initialTurns);
   const [answerText, setAnswerText] = useState("");
@@ -72,12 +77,51 @@ export function InterviewSimulator({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [speechInputSupported, setSpeechInputSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+
+  const interviewer = useMemo(() => pickInterviewer(market, sessionId), [market, sessionId]);
+
+  // Browser feature detection must happen after mount — checking `window` during
+  // render would make the server-rendered HTML disagree with the client and
+  // trigger a hydration mismatch.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setVoiceSupported(isSpeechSynthesisSupported());
+    setSpeechInputSupported(getSpeechRecognition() !== null);
+  }, []);
 
   const currentIndex = turns.length;
   const done = currentIndex >= questions.length;
   const currentQuestion = !done ? questions[currentIndex] : null;
-  const speechSupported = getSpeechRecognition() !== null;
+
+  const avatarState: AvatarState = loading
+    ? "thinking"
+    : recording
+      ? "listening"
+      : speaking
+        ? "speaking"
+        : "idle";
+
+  function readAloud(text: string) {
+    if (!voiceEnabled) return;
+    speak(text, { lang: "en-US", onStart: () => setSpeaking(true), onEnd: () => setSpeaking(false) });
+  }
+
+  // The interviewer "asks" each new question out loud as it appears.
+  useEffect(() => {
+    if (currentQuestion) readAloud(currentQuestion.question);
+    return () => cancelSpeech();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex]);
+
+  function toggleVoice() {
+    if (voiceEnabled) cancelSpeech();
+    setVoiceEnabled((v) => !v);
+  }
 
   function toggleRecording() {
     const Recognition = getSpeechRecognition();
@@ -89,8 +133,10 @@ export function InterviewSimulator({
       return;
     }
 
+    cancelSpeech();
+    setSpeaking(false);
     const recognition = new Recognition();
-    recognition.lang = language === "ENGLISH" ? "en-US" : "en-US"; // browser voice locales vary; default to en-US
+    recognition.lang = "en-US"; // browser voice locales for other languages vary; default to en-US
     recognition.continuous = true;
     recognition.interimResults = false;
     recognition.onresult = (event) => {
@@ -139,6 +185,7 @@ export function InterviewSimulator({
       },
     ]);
     setAnswerText("");
+    readAloud(data.turn.feedback.summary);
   }
 
   if (done) {
@@ -150,7 +197,8 @@ export function InterviewSimulator({
     return (
       <div className="flex flex-col gap-6">
         <div className="card p-6">
-          <h2 className="text-lg font-semibold">Session complete 🎉</h2>
+          <InterviewerAvatar name={interviewer.name} title={interviewer.title} state="idle" />
+          <h2 className="mt-4 text-lg font-semibold">Session complete 🎉</h2>
           <p className="mt-1 text-sm text-muted">
             You answered all {turns.length} questions. Here&apos;s how it went.
           </p>
@@ -165,7 +213,7 @@ export function InterviewSimulator({
         </div>
 
         {turns.map((t, i) => (
-          <TurnReview key={i} turn={t} />
+          <TurnReview key={i} turn={t} interviewerName={interviewer.name} />
         ))}
       </div>
     );
@@ -173,17 +221,44 @@ export function InterviewSimulator({
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="card flex items-center justify-between p-4">
+        <InterviewerAvatar name={interviewer.name} title={interviewer.title} state={avatarState} size="sm" />
+        {voiceSupported && (
+          <button
+            type="button"
+            onClick={toggleVoice}
+            className="text-xs font-medium text-muted hover:text-brand"
+          >
+            {voiceEnabled ? "🔊 Voice on" : "🔇 Voice off"}
+          </button>
+        )}
+      </div>
+
       {turns.map((t, i) => (
-        <TurnReview key={i} turn={t} />
+        <TurnReview key={i} turn={t} interviewerName={interviewer.name} />
       ))}
 
       <div className="card p-6">
         <p className="text-sm font-medium text-muted">
           Question {currentIndex + 1} of {questions.length}
         </p>
-        <p className="mt-1 text-lg font-semibold">{currentQuestion?.question}</p>
+        <div className="mt-2 flex items-start gap-3">
+          <InterviewerAvatar name={interviewer.name} state={avatarState} size="sm" />
+          <div className="rounded-2xl rounded-tl-none border border-white/50 bg-white/25 px-4 py-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+            <p className="text-base font-semibold">{currentQuestion?.question}</p>
+          </div>
+        </div>
+        {voiceSupported && (
+          <button
+            type="button"
+            onClick={() => currentQuestion && readAloud(currentQuestion.question)}
+            className="mt-2 text-xs font-medium text-brand hover:underline"
+          >
+            🔊 Replay question
+          </button>
+        )}
 
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-5 flex items-center gap-3">
           <select
             className="input w-auto"
             value={language}
@@ -195,13 +270,13 @@ export function InterviewSimulator({
               </option>
             ))}
           </select>
-          {speechSupported && (
+          {speechInputSupported && (
             <button
               type="button"
               onClick={toggleRecording}
               className={recording ? "btn-primary" : "btn-secondary"}
             >
-              {recording ? "● Stop recording" : "🎤 Speak"}
+              {recording ? "● Stop recording" : "🎤 Speak your answer"}
             </button>
           )}
         </div>
@@ -227,13 +302,17 @@ export function InterviewSimulator({
   );
 }
 
-function TurnReview({ turn }: { turn: Turn }) {
+function TurnReview({ turn, interviewerName }: { turn: Turn; interviewerName: string }) {
   return (
     <div className="card p-6">
       <p className="text-sm font-medium text-muted">
-        Q: {turn.questionText} <span className="badge ml-2">{LANGUAGE_LABELS[turn.answerLanguage]}</span>
+        {interviewerName} asked: {turn.questionText}
       </p>
-      <p className="mt-2 whitespace-pre-wrap text-sm text-muted">{turn.answerText}</p>
+      <p className="mt-2 flex items-center gap-2 text-xs text-muted">
+        <span className="badge">{LANGUAGE_LABELS[turn.answerLanguage]}</span>
+        your answer:
+      </p>
+      <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{turn.answerText}</p>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <ScoreBar label="Content" value={turn.feedback.contentScore} />

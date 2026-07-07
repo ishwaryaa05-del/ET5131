@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/session";
+import { requireProfile } from "@/lib/session";
 import { InterviewSimulator } from "@/components/InterviewSimulator";
 import type { QuestionSetResult } from "@/lib/ai";
 import type { LanguageValue } from "@/lib/constants";
@@ -11,7 +11,7 @@ export default async function InterviewSessionPage({
 }: {
   params: Promise<{ id: string; sessionId: string }>;
 }) {
-  const user = await requireUser();
+  const user = await requireProfile();
   const { id, sessionId } = await params;
 
   const session = await db.interviewSession.findUnique({
@@ -54,6 +54,7 @@ export default async function InterviewSessionPage({
             },
           }))}
           defaultLanguage={session.language as LanguageValue}
+          market={user.profile.market}
         />
       </div>
     </div>
