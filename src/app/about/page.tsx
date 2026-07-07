@@ -6,30 +6,63 @@ export default async function AboutPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-6">
-        <Link href="/" className="font-serif text-lg font-semibold tracking-tight">
-          CareerBridge
-        </Link>
-        <nav className="text-sm">
-          <Link href={user ? "/dashboard" : "/"} className="text-muted hover:text-brand">
-            {user ? "Back to dashboard" : "Back home"}
+      <header className="glass sticky top-0 z-10 border-x-0 border-t-0">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-4">
+          <Link href="/" className="font-serif text-lg font-semibold tracking-tight">
+            CareerBridge
           </Link>
-        </nav>
+          <nav className="text-sm">
+            <Link href={user ? "/dashboard" : "/"} className="text-muted hover:text-brand">
+              {user ? "Back to dashboard" : "Back home"}
+            </Link>
+          </nav>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 pb-24">
-        <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted">About us</p>
-        <h1 className="mt-3 max-w-xl text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
-          Real job-readiness support for ASEAN&apos;s students, not another resume checklist.
-        </h1>
+        <div className="pt-14">
+          <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted">About us</p>
+          <h1 className="mt-3 max-w-xl text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
+            Built by students who were job hunting too.
+          </h1>
+        </div>
+
+        <section className="card mt-8 p-8">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">
+            Our story
+          </p>
+          <p className="mt-3 text-base leading-7">
+            CareerBridge started with a small group of university students who were applying to
+            jobs ourselves — and finding it a lot harder than we expected. The more we compared
+            notes, the more one pattern stood out: the international students in our own group,
+            some of the sharpest people we knew, kept losing offers not because their thinking was
+            weak, but because something got lost the moment they had to say it in English, under
+            pressure, in a format built around Western interview norms. It wasn&apos;t a substance
+            problem. It was a translation and a market-fit problem — and nothing we tried actually
+            addressed it. So a few of us decided to build the tool we wished we&apos;d had.
+          </p>
+        </section>
+
+        <section className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="card p-7">
+            <p className="font-serif text-lg font-semibold">Our mission</p>
+            <p className="mt-3 text-sm leading-6 text-muted">
+              Make sure no capable student gets filtered out of a job they&apos;re qualified for
+              because of a language barrier or a market mismatch — never because of a lack of
+              substance.
+            </p>
+          </div>
+          <div className="card p-7">
+            <p className="font-serif text-lg font-semibold">Our vision</p>
+            <p className="mt-3 text-sm leading-6 text-muted">
+              A region where every student — whatever their first language, internet access, or
+              university — walks into an interview as prepared as anyone else, backed by
+              employers and schools who invest in that preparation directly.
+            </p>
+          </div>
+        </section>
 
         <div className="mt-10 flex flex-col gap-8 text-base leading-7 text-foreground">
-          <p>
-            CareerBridge helps university students and fresh graduates across Singapore, Malaysia,
-            and Myanmar prepare for interviews the way employers in <em>their</em> market actually
-            hire — not a one-size-fits-all template built for a Western audience.
-          </p>
-
           <section>
             <h2 className="font-serif text-xl font-semibold">Why Dual-Tongue exists</h2>
             <p className="mt-3 text-muted">
