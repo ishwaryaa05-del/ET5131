@@ -1,4 +1,6 @@
-import { initialsOf } from "@/lib/interviewer";
+"use client";
+
+import { useId } from "react";
 
 export type AvatarState = "idle" | "speaking" | "listening" | "thinking";
 
@@ -20,7 +22,8 @@ export function InterviewerAvatar({
   state: AvatarState;
   size?: "sm" | "md";
 }) {
-  const dims = size === "sm" ? "h-9 w-9 text-xs" : "h-14 w-14 text-base";
+  const gradientId = useId();
+  const dims = size === "sm" ? "h-9 w-9" : "h-14 w-14";
 
   return (
     <div className="flex items-center gap-3">
@@ -31,11 +34,23 @@ export function InterviewerAvatar({
         {state === "listening" && (
           <span className="absolute -inset-1 animate-ping rounded-full border-2 border-brand/60" />
         )}
-        <div
-          className={`relative flex ${dims} items-center justify-center rounded-full border border-white/50 bg-gradient-to-br from-brand to-accent font-serif font-semibold text-white dark:border-white/10`}
+        <svg
+          viewBox="0 0 100 100"
+          className={`relative ${dims} rounded-full border border-white/50 dark:border-white/10 avatar-face-${state}`}
+          role="img"
+          aria-label={`${name}, ${STATE_LABEL[state]}`}
         >
-          {initialsOf(name)}
-        </div>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--brand)" />
+              <stop offset="100%" stopColor="var(--accent)" />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="50" fill={`url(#${gradientId})`} />
+          <ellipse className="avatar-eye" cx="34" cy="44" rx="5.5" ry="7.5" fill="white" />
+          <ellipse className="avatar-eye" cx="66" cy="44" rx="5.5" ry="7.5" fill="white" />
+          <rect className="avatar-mouth" x="36" y="64" width="28" height="7" rx="3.5" fill="white" />
+        </svg>
       </div>
       {title !== undefined && (
         <div>

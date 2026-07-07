@@ -71,6 +71,52 @@ h3 {
   filter: blur(50px) saturate(160%);
 }
 
+@keyframes avatar-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+@keyframes avatar-talk {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1.3); }
+}
+@keyframes avatar-listen {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.3); }
+}
+@keyframes avatar-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2%); }
+}
+@keyframes avatar-think {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3%); }
+}
+
+.avatar-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: avatar-blink 4.5s ease-in-out infinite;
+}
+.avatar-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.avatar-face-idle {
+  animation: avatar-bob 3.2s ease-in-out infinite;
+}
+.avatar-face-speaking .avatar-mouth {
+  animation: avatar-talk 0.32s ease-in-out infinite;
+}
+.avatar-face-speaking .avatar-eye {
+  animation: avatar-blink 2.4s ease-in-out infinite;
+}
+.avatar-face-listening .avatar-eye {
+  animation: avatar-listen 0.9s ease-in-out infinite;
+}
+.avatar-face-thinking {
+  animation: avatar-think 1.1s ease-in-out infinite;
+}
+
 @layer components {
   .glass {
     @apply border border-white/50 bg-card/35 backdrop-blur-xl dark:border-white/10 dark:bg-card/30;
