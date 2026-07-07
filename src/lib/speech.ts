@@ -74,7 +74,7 @@ export function speak(
           utterance.onerror = (event) => {
             const reason = event.error ?? "unknown-error";
             if (RETRYABLE_ERRORS.has(reason) && attemptNumber < MAX_ATTEMPTS) {
-              setTimeout(() => attempt(attemptNumber + 1), 150 * attemptNumber);
+              setTimeout(() => attempt(attemptNumber + 1), 300 * attemptNumber);
               return;
             }
             opts?.onError?.(reason);
@@ -90,8 +90,11 @@ export function speak(
 
     // Calling speak() right after cancel() is a known Chrome/WebKit race: the
     // new utterance can report itself as "canceled" before ever playing. Only
-    // cancel (and give it a moment to settle) when something is in progress.
-    if (synth.speaking || synth.pending) {
+    // cancel (and give it a moment to settle) on the very first attempt — on
+    // retries, `synth.speaking` can be stuck `true` from the previous failed
+    // attempt (another Chrome quirk), which would otherwise make every retry
+    // re-enter this same cancel/speak race and fail identically every time.
+    if (attemptNumber === 1 && (synth.speaking || synth.pending)) {
       synth.cancel();
       setTimeout(queue, 50);
     } else {
