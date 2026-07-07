@@ -12,6 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         name={user.name}
         market={user.profile?.market ?? null}
         hasProfile={Boolean(user.profile)}
+        isAdmin={user.isAdmin}
       />
       <main className="flex-1 px-4 py-6 sm:px-8 sm:py-10">
         <div className="mx-auto w-full max-w-5xl">{children}</div>

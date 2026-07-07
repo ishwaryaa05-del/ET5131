@@ -30,3 +30,10 @@ export async function requireProfile() {
   if (!user.profile) redirect("/onboarding");
   return { ...user, profile: user.profile };
 }
+
+/** Gate for the internal admin dashboard. Promote a user via `isAdmin` directly in the DB. */
+export async function requireAdmin() {
+  const user = await requireUser();
+  if (!user.isAdmin) redirect("/dashboard");
+  return user;
+}

@@ -11,19 +11,23 @@ const NAV_ITEMS = [
   { href: "/resume", label: "Resume" },
   { href: "/riasec", label: "RIASEC Fit" },
   { href: "/skills", label: "Skill Gaps" },
+  { href: "/tasks", label: "Sponsor Tasks" },
 ];
 
 export function AppNav({
   name,
   market,
   hasProfile,
+  isAdmin,
 }: {
   name: string;
   market: MarketValue | null;
   hasProfile: boolean;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const navItems = isAdmin ? [...NAV_ITEMS, { href: "/admin", label: "Admin" }] : NAV_ITEMS;
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -40,7 +44,7 @@ export function AppNav({
           <Logo className="text-lg text-brand" />
         </Link>
         <nav className="mt-6 flex flex-row flex-wrap gap-1 lg:mt-8 lg:flex-col lg:gap-0.5">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link

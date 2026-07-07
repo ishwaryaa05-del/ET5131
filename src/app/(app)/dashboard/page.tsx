@@ -3,11 +3,13 @@ import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/session";
 import { InterviewProgressChart, type ProgressPoint } from "@/components/InterviewProgressChart";
 import { MARKET_LABELS, LANGUAGE_LABELS } from "@/lib/constants";
+import { getCurrentAccessUntil, resolveAutoApprovals, isExpiringSoon } from "@/lib/sponsorExchange/business";
 
 export default async function DashboardPage() {
   const user = await requireProfile();
+  await resolveAutoApprovals();
 
-  const [jdCount, latestResume, sessions, latestSkillGap, latestRiasec] = await Promise.all([
+  const [jdCount, latestResume, sessions, latestSkillGap, latestRiasec, accessUntil] = await Promise.all([
     db.jobDescription.count({ where: { userId: user.id } }),
     db.resume.findFirst({ where: { userId: user.id }, orderBy: { createdAt: "desc" } }),
     db.interviewSession.findMany({
@@ -21,7 +23,10 @@ export default async function DashboardPage() {
       include: { jd: { select: { title: true } } },
     }),
     db.riasecResult.findFirst({ where: { userId: user.id }, orderBy: { createdAt: "desc" } }),
+    getCurrentAccessUntil(user.id),
   ]);
+
+  const expiringSoon = isExpiringSoon(accessUntil);
 
   const lastSessionWithTurns = sessions.find((s) => s.turns.length > 0);
   const lastScores = lastSessionWithTurns
@@ -147,6 +152,26 @@ export default async function DashboardPage() {
             )
           }
           cta={latestRiasec ? "View result" : "Take assessment"}
+        />
+
+        <DashboardCard
+          title="Sponsor task access"
+          href="/tasks"
+          body={
+            accessUntil ? (
+              <>
+                <p>Access until {accessUntil.toLocaleDateString()}</p>
+                {expiringSoon && (
+                  <p className="mt-1 text-muted">
+                    Renews soon — browse tasks if you&apos;d like to extend it. Never required.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-muted">Complete a sponsor task to unlock extended access</p>
+            )
+          }
+          cta="Browse tasks"
         />
       </div>
 

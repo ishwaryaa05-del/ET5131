@@ -34,6 +34,7 @@ model User {
   email        String   @unique
   passwordHash String
   name         String
+  isAdmin      Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   profile           Profile?
@@ -42,6 +43,7 @@ model User {
   interviewSessions InterviewSession[]
   riasecResults     RiasecResult[]
   skillGapReports   SkillGapReport[]
+  taskClaims        TaskClaim[]
 }
 
 model Profile {
@@ -133,4 +135,87 @@ model SkillGapReport {
   resumeId  String
   gaps      Json // [{ skill, why, courses:[{platform,title,url}] }]
   createdAt DateTime       @default(now())
+}
+
+// ---------- Sponsor Task Exchange ----------
+// Self-contained module: sponsors fund free student access by posting small,
+// scoped tasks; students claim, complete, and get access extended in return.
+
+enum TaskTier {
+  VISIBILITY // Tier 1
+  FEEDBACK // Tier 2
+  APPLIED_PROJECT // Tier 3
+}
+
+enum TaskStatus {
+  OPEN
+  CLOSED
+}
+
+enum ClaimStatus {
+  CLAIMED
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  AUTO_APPROVED
+}
+
+enum SubmissionType {
+  URL
+  FILE
+  FORM_RESPONSE
+}
+
+model Sponsor {
+  id           String   @id @default(cuid())
+  companyName  String
+  industry     String
+  contactName  String
+  contactEmail String   @unique
+  passwordHash String
+  logoUrl      String?
+  createdAt    DateTime @default(now())
+
+  tasks Task[]
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  sponsorId    String
+  sponsor      Sponsor    @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+  tier         TaskTier
+  title        String
+  description  String
+  formFields   Json? // Tier 2 only: [{ key, label, required }]
+  seatCap      Int
+  seatsClaimed Int        @default(0)
+  hourCap      Int // derived from tier at creation time, never sponsor-set
+  status       TaskStatus @default(OPEN)
+  createdAt    DateTime   @default(now())
+
+  claims TaskClaim[]
+}
+
+model TaskClaim {
+  id                  String          @id @default(cuid())
+  taskId              String
+  task                Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  studentId           String
+  student             User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status              ClaimStatus     @default(CLAIMED)
+  agreementVersion    Int // version of the tier's agreement template accepted
+  agreementAcceptedAt DateTime        @default(now())
+  submissionType      SubmissionType?
+  submissionContent   Json? // { url } | { fields: {...} } | { path, filename, size }
+  precheckNotes       Json? // string[] of issues from the last failed automated pre-check
+  claimedAt           DateTime        @default(now())
+  submittedAt         DateTime?
+  reviewDeadline      DateTime?
+  reviewedAt          DateTime?
+  reviewer            String? // "auto" | sponsor contact name
+  reviewNote          String?
+  accessGrantedUntil  DateTime?
+
+  @@unique([taskId, studentId])
 }
