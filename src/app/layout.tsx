@@ -19,9 +19,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CareerBridge — Interview-ready for ASEAN's job market",
+  title: "CareerBridge ASEAN — Interview-ready for Singapore, Malaysia & Myanmar",
   description:
-    "CareerBridge helps ASEAN students and fresh graduates prep for interviews, tailor resumes, and close skill gaps for the Singapore, Malaysia, and Myanmar job markets.",
+    "CareerBridge ASEAN helps students and fresh graduates prep for interviews, tailor resumes, and close skill gaps for the Singapore, Malaysia, and Myanmar job markets.",
 };
 
 export default function RootLayout({

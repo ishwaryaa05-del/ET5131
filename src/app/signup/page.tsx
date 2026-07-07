@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { AuthForm } from "@/components/AuthForm";
+import { Logo } from "@/components/Logo";
 
 export default function SignupPage() {
   return (
     <div className="flex flex-1 items-center justify-center px-6 py-12">
       <div className="card w-full max-w-md p-8">
-        <Link href="/" className="text-sm font-semibold text-brand">
-          CareerBridge
+        <Link href="/">
+          <Logo className="text-lg text-brand" />
         </Link>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight">Create your account</h1>
         <p className="mt-1 text-sm text-muted">Free for students, always.</p>

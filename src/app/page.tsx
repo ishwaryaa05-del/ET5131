@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 const FEATURES = [
   {
@@ -38,7 +39,7 @@ export default function Home() {
     <div className="flex flex-1 flex-col">
       <header className="glass sticky top-0 z-10 border-x-0 border-t-0">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
-          <span className="font-serif text-lg font-semibold tracking-tight">CareerBridge</span>
+          <Logo className="text-lg" />
           <nav className="flex items-center gap-5 text-sm">
             <Link href="/about" className="text-muted hover:text-brand">
               About us
@@ -83,7 +84,7 @@ export default function Home() {
             <p className="text-sm text-muted">
               Dual-Tongue coaching closes that gap — read the{" "}
               <Link href="/about" className="text-brand hover:underline">
-                full story behind CareerBridge
+                full story behind CareerBridge ASEAN
               </Link>
               .
             </p>
@@ -103,7 +104,7 @@ export default function Home() {
 
       <footer className="border-t border-border px-6 py-8">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-start justify-between gap-3 text-sm text-muted sm:flex-row sm:items-center">
-          <span>CareerBridge is funded by sponsor companies, not student subscriptions.</span>
+          <span>CareerBridge ASEAN is funded by sponsor companies, not student subscriptions.</span>
           <Link href="/about" className="text-brand hover:underline">
             About us
           </Link>

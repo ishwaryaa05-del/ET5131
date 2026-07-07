@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { MARKET_LABELS, type MarketValue } from "@/lib/constants";
+import { Logo } from "@/components/Logo";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -30,11 +31,13 @@ export function AppNav({
     router.refresh();
   }
 
+  const initial = name.trim().charAt(0).toUpperCase() || "?";
+
   return (
-    <aside className="glass flex w-full flex-col justify-between px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:px-5 lg:py-6">
+    <aside className="glass flex w-full flex-col gap-6 px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:justify-between lg:px-5 lg:pt-6 lg:pb-12">
       <div>
-        <Link href="/dashboard" className="font-serif text-lg font-semibold tracking-tight text-brand">
-          CareerBridge
+        <Link href="/dashboard">
+          <Logo className="text-lg text-brand" />
         </Link>
         <nav className="mt-6 flex flex-row flex-wrap gap-1 lg:mt-8 lg:flex-col lg:gap-0.5">
           {NAV_ITEMS.map((item) => {
@@ -55,16 +58,23 @@ export function AppNav({
           })}
         </nav>
       </div>
-      <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4 lg:mt-0 lg:flex-col lg:items-start">
-        <div>
-          <p className="text-sm font-medium">{name}</p>
-          {market && <p className="text-xs text-muted">{MARKET_LABELS[market]}</p>}
+
+      <div className="flex items-center gap-3 border-t border-border pt-4 lg:flex-col lg:items-stretch lg:gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft font-serif text-sm font-semibold text-brand-dark">
+            {initial}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{name}</p>
+            {market && <p className="text-xs text-muted">{MARKET_LABELS[market]}</p>}
+          </div>
         </div>
-        <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-2">
-          <Link href="/about" className="text-sm text-muted hover:text-brand">
+        <div className="ml-auto flex items-center gap-3 text-sm lg:ml-0 lg:gap-0 lg:border-t lg:border-border lg:pt-3">
+          <Link href="/about" className="text-muted hover:text-brand lg:flex-1">
             About us
           </Link>
-          <button onClick={logout} className="text-sm font-medium text-muted hover:text-brand">
+          <span className="text-border lg:hidden">·</span>
+          <button onClick={logout} className="font-medium text-muted hover:text-brand">
             Log out
           </button>
         </div>
