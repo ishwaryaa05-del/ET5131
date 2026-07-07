@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireProfile } from "@/lib/session";
 import { getDualTongueFeedback } from "@/lib/ai";
-import { LANGUAGE_VALUES } from "@/lib/constants";
+import { LANGUAGE_VALUES, LANGUAGE_LABELS } from "@/lib/constants";
 import type { QuestionSetResult } from "@/lib/ai";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -46,7 +46,7 @@ export async function POST(request: Request, ctx: Ctx) {
       question: question.question,
       strongAnswerNote: question.strongAnswerNote,
       answerText: parsed.data.answerText,
-      answerLanguage: parsed.data.answerLanguage,
+      answerLanguage: LANGUAGE_LABELS[parsed.data.answerLanguage],
       market: user.profile.market,
       industry: session.jd.industry,
     });

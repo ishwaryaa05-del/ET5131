@@ -41,6 +41,7 @@ export default async function InterviewSessionPage({
           jdId={id}
           questions={questions}
           initialTurns={session.turns.map((t) => ({
+            id: t.id,
             questionIndex: t.questionIndex,
             questionText: t.questionText,
             answerText: t.answerText,
@@ -50,8 +51,19 @@ export default async function InterviewSessionPage({
               deliveryScore: number;
               culturalFitScore: number;
               summary: string;
+              nativeLanguageFeedback: string;
+              modelEnglishAnswer: string;
               dualTongueNotes: { original: string; issue: string; suggestedEnglish: string }[];
             },
+            englishPractice: t.englishPractice as {
+              attemptText: string;
+              feedback: {
+                fluencyScore: number;
+                summary: string;
+                corrections: { original: string; suggestion: string; reason: string }[];
+                possibleMispronunciations: { word: string; note: string }[];
+              };
+            } | null,
           }))}
           defaultLanguage={session.language as LanguageValue}
           market={user.profile.market}

@@ -79,27 +79,28 @@ model InterviewQuestionSet {
 }
 
 model InterviewSession {
-  id        String    @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   jdId      String
-  jd        JobDescription @relation(fields: [jdId], references: [id], onDelete: Cascade)
+  jd        JobDescription   @relation(fields: [jdId], references: [id], onDelete: Cascade)
   language  PracticeLanguage
-  startedAt DateTime  @default(now())
+  startedAt DateTime         @default(now())
 
   turns InterviewTurn[]
 }
 
 model InterviewTurn {
-  id             String           @id @default(cuid())
-  sessionId      String
-  session        InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  questionIndex  Int
-  questionText   String
-  answerText     String
-  answerLanguage PracticeLanguage
-  feedback       Json // { contentScore, deliveryScore, culturalFitScore, dualTongueNotes:[{original,issue,suggestedEnglish}], summary }
-  createdAt      DateTime         @default(now())
+  id              String           @id @default(cuid())
+  sessionId       String
+  session         InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionIndex   Int
+  questionText    String
+  answerText      String
+  answerLanguage  PracticeLanguage
+  feedback        Json // { contentScore, deliveryScore, culturalFitScore, dualTongueNotes:[{original,issue,suggestedEnglish}], summary, nativeLanguageFeedback, modelEnglishAnswer }
+  englishPractice Json? // { attemptText, feedback: { fluencyScore, summary, corrections:[], possibleMispronunciations:[] } }
+  createdAt       DateTime         @default(now())
 }
 
 model Resume {
@@ -124,12 +125,12 @@ model RiasecResult {
 }
 
 model SkillGapReport {
-  id        String          @id @default(cuid())
+  id        String         @id @default(cuid())
   userId    String
-  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   jdId      String
-  jd        JobDescription  @relation(fields: [jdId], references: [id], onDelete: Cascade)
+  jd        JobDescription @relation(fields: [jdId], references: [id], onDelete: Cascade)
   resumeId  String
   gaps      Json // [{ skill, why, courses:[{platform,title,url}] }]
-  createdAt DateTime        @default(now())
+  createdAt DateTime       @default(now())
 }

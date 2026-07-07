@@ -120,6 +120,8 @@ const dualTongueFeedbackSchema = z.object({
   deliveryScore: z.number().min(0).max(10),
   culturalFitScore: z.number().min(0).max(10),
   summary: z.string(),
+  nativeLanguageFeedback: z.string(),
+  modelEnglishAnswer: z.string(),
   dualTongueNotes: z.array(
     z.object({
       original: z.string(),
@@ -139,10 +141,44 @@ export async function getDualTongueFeedback(opts: {
   industry: string;
 }): Promise<DualTongueFeedback> {
   return askForJSON({
-    system: `You are a bilingual interview coach for candidates in ${MARKET_LABELS[opts.market]} who practice partly or fully in their native language (Burmese, Malay, Tamil) or a mix with English. Your specialty ("Dual-Tongue" coaching) is spotting phrases, idioms, or framing native to their language that carry a strong trait (e.g. initiative, humility, leadership) but would not land the same way if translated literally into corporate English — and coaching the precise English rephrasing that preserves the trait. Never just translate; always explain what the phrase signals and how to say that in a way an English-speaking interviewer in this market would recognize as strong.`,
-    prompt: `${marketContext(opts.market, opts.industry)}\nInterview question: "${opts.question}"\nWhat a strong answer looks like here: ${opts.strongAnswerNote}\n\nCandidate answered in: ${opts.answerLanguage}\nCandidate's answer:\n"""\n${opts.answerText}\n"""\n\nEvaluate on three dimensions (0-10 each):\n- contentScore: did they actually answer the question with substance?\n- deliveryScore: clarity, structure, filler words, conciseness.\n- culturalFitScore: does the framing read as strong to an interviewer in this specific market (regardless of language used)?\n\nAlso identify 0-4 specific "dualTongueNotes": phrases in the candidate's own words (their original language or a direct/awkward translation they used) where an idiom or trait native to their language wouldn't land the same in English, each with the issue explained and the precise English rephrasing that conveys the same trait. If the answer is already strong, natural English, return an empty array for dualTongueNotes.\n\nWrite a 2-3 sentence overall summary of the feedback.\n\nReturn JSON: { "contentScore": number, "deliveryScore": number, "culturalFitScore": number, "summary": string, "dualTongueNotes": [ { "original": string, "issue": string, "suggestedEnglish": string } ] }`,
+    system: `You are a bilingual interview coach for candidates in ${MARKET_LABELS[opts.market]} who practice partly or fully in their native language (Burmese, Malay, Tamil) or a mix with English. Your specialty ("Dual-Tongue" coaching) is spotting phrases, idioms, or framing native to their language that carry a strong trait (e.g. initiative, humility, leadership) but would not land the same way if translated literally into corporate English — and coaching the precise English rephrasing that preserves the trait. Never just translate; always explain what the phrase signals and how to say that in a way an English-speaking interviewer in this market would recognize as strong. Many of your students have weak English fluency, so your own feedback must be understandable to them, not just correct.`,
+    prompt: `${marketContext(opts.market, opts.industry)}\nInterview question: "${opts.question}"\nWhat a strong answer looks like here: ${opts.strongAnswerNote}\n\nCandidate answered in: ${opts.answerLanguage}\nCandidate's answer:\n"""\n${opts.answerText}\n"""\n\nEvaluate on three dimensions (0-10 each):\n- contentScore: did they actually answer the question with substance?\n- deliveryScore: clarity, structure, filler words, conciseness.\n- culturalFitScore: does the framing read as strong to an interviewer in this specific market (regardless of language used)?\n\nAlso identify 0-4 specific "dualTongueNotes": phrases in the candidate's own words (their original language or a direct/awkward translation they used) where an idiom or trait native to their language wouldn't land the same in English, each with the issue explained and the precise English rephrasing that conveys the same trait. If the answer is already strong, natural English, return an empty array for dualTongueNotes.\n\nWrite a 2-3 sentence overall "summary" of the feedback in English.\n\nAlso write "nativeLanguageFeedback": the same core content/delivery feedback (what was strong, what to improve), but written in ${opts.answerLanguage} if that is not English, so a candidate with weak English fluency can fully understand the coaching. If the candidate answered in English, set this to an empty string.\n\nAlso write "modelEnglishAnswer": a polished, natural-sounding English version of what the candidate was trying to say — same substance and ideas, but expressed the way a strong candidate would say it in English in this market. This becomes practice material for the candidate, so make it something a non-fluent speaker could realistically read aloud and learn from (clear sentences, not overly complex vocabulary).\n\nReturn JSON: { "contentScore": number, "deliveryScore": number, "culturalFitScore": number, "summary": string, "nativeLanguageFeedback": string, "modelEnglishAnswer": string, "dualTongueNotes": [ { "original": string, "issue": string, "suggestedEnglish": string } ] }`,
     schema: dualTongueFeedbackSchema,
-    maxTokens: 1500,
+    maxTokens: 2000,
+  });
+}
+
+// ---------- Feature 4b: English-practice round (text-based fluency coaching) ----------
+
+const englishPracticeFeedbackSchema = z.object({
+  fluencyScore: z.number().min(0).max(10),
+  summary: z.string(),
+  corrections: z.array(
+    z.object({
+      original: z.string(),
+      suggestion: z.string(),
+      reason: z.string(),
+    })
+  ),
+  possibleMispronunciations: z.array(
+    z.object({
+      word: z.string(),
+      note: z.string(),
+    })
+  ),
+});
+export type EnglishPracticeFeedback = z.infer<typeof englishPracticeFeedbackSchema>;
+
+export async function getEnglishPracticeFeedback(opts: {
+  modelAnswer: string;
+  attemptText: string;
+}): Promise<EnglishPracticeFeedback> {
+  return askForJSON({
+    system:
+      "You are an ESL (English as a Second Language) speaking coach. A student was given a model English answer to read aloud from memory, and you're given a speech-to-text transcript of their attempt. You give text-based coaching only: grammar, word choice, and natural phrasing. You do NOT have access to audio, so you cannot precisely score pronunciation — but a speech-to-text engine tends to mis-transcribe words that are pronounced very differently from the target word (wrong stress, wrong vowel sounds, dropped syllables), so a word in the transcript that doesn't match the model answer and isn't just a paraphrase can be a weak, indirect signal of a pronunciation issue worth a gentle, clearly-hedged note — never state this as a certain diagnosis.",
+    prompt: `Model English answer the student was practicing:\n"""\n${opts.modelAnswer}\n"""\n\nSpeech-to-text transcript of the student's spoken attempt:\n"""\n${opts.attemptText}\n"""\n\nGive:\n- fluencyScore (0-10): how close their attempt is to fluent, natural spoken English, considering this is a practice reading of a model answer.\n- summary: 2-3 encouraging sentences on overall performance.\n- corrections: 0-5 items, each quoting a phrase from their attempt ("original"), a corrected/more natural version ("suggestion"), and a one-sentence "reason" (grammar, word choice, or phrasing).\n- possibleMispronunciations: 0-4 items for words in the transcript that diverge oddly from the model answer in a way that might indicate a mispronunciation rather than a wording choice. Each has the "word" as it appears in their transcript and a hedged "note" (e.g. "This may just be a transcription quirk, but if the speech-to-text heard '...' instead of '...', check you're stressing the second syllable"). Leave this empty if nothing stands out — do not force findings.\n\nReturn JSON: { "fluencyScore": number, "summary": string, "corrections": [ { "original": string, "suggestion": string, "reason": string } ], "possibleMispronunciations": [ { "word": string, "note": string } ] }`,
+    schema: englishPracticeFeedbackSchema,
+    maxTokens: 1200,
   });
 }
 

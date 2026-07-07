@@ -18,6 +18,17 @@ export const LANGUAGE_LABELS: Record<LanguageValue, string> = {
   MIXED: "Mixed / code-switching",
 };
 
+/** BCP-47 locale used for browser speech recognition when answering in each language. */
+export const SPEECH_RECOGNITION_LOCALES: Record<LanguageValue, string> = {
+  ENGLISH: "en-US",
+  BURMESE: "my-MM",
+  MALAY: "ms-MY",
+  TAMIL: "ta-IN",
+  // Code-switching answers don't map to a single ASR locale; English tends to
+  // pick up the most cognates in mixed speech among widely supported locales.
+  MIXED: "en-US",
+};
+
 export const ROLE_LEVEL_VALUES = ["INTERNSHIP", "ENTRY_LEVEL", "ASSOCIATE"] as const;
 export type RoleLevelValue = (typeof ROLE_LEVEL_VALUES)[number];
 

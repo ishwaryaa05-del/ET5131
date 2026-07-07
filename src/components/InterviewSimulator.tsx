@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { LANGUAGE_VALUES, LANGUAGE_LABELS, type LanguageValue, type MarketValue } from "@/lib/constants";
+import {
+  LANGUAGE_VALUES,
+  LANGUAGE_LABELS,
+  SPEECH_RECOGNITION_LOCALES,
+  type LanguageValue,
+  type MarketValue,
+} from "@/lib/constants";
 import { pickInterviewer } from "@/lib/interviewer";
 import {
   speak,
@@ -19,14 +25,25 @@ type Feedback = {
   deliveryScore: number;
   culturalFitScore: number;
   summary: string;
+  nativeLanguageFeedback: string;
+  modelEnglishAnswer: string;
   dualTongueNotes: DualTongueNote[];
 };
+type EnglishPracticeFeedback = {
+  fluencyScore: number;
+  summary: string;
+  corrections: { original: string; suggestion: string; reason: string }[];
+  possibleMispronunciations: { word: string; note: string }[];
+};
+type EnglishPractice = { attemptText: string; feedback: EnglishPracticeFeedback };
 type Turn = {
+  id: string;
   questionIndex: number;
   questionText: string;
   answerText: string;
   answerLanguage: LanguageValue;
   feedback: Feedback;
+  englishPractice?: EnglishPractice | null;
 };
 type Question = { question: string; strongAnswerNote: string };
 
@@ -144,7 +161,7 @@ export function InterviewSimulator({
     cancelSpeech();
     setSpeaking(false);
     const recognition = new Recognition();
-    recognition.lang = "en-US"; // browser voice locales for other languages vary; default to en-US
+    recognition.lang = SPEECH_RECOGNITION_LOCALES[language];
     recognition.continuous = true;
     recognition.interimResults = false;
     recognition.onresult = (event) => {
@@ -191,11 +208,13 @@ export function InterviewSimulator({
     setTurns((prev) => [
       ...prev,
       {
+        id: data.turn.id,
         questionIndex: currentIndex,
         questionText: currentQuestion.question,
         answerText,
         answerLanguage: language,
         feedback: data.turn.feedback,
+        englishPractice: null,
       },
     ]);
     setAnswerText("");
@@ -378,6 +397,207 @@ function TurnReview({
               </p>
             </div>
           ))}
+        </div>
+      )}
+
+      {turn.answerLanguage !== "ENGLISH" && turn.feedback.nativeLanguageFeedback && (
+        <div className="mt-4 rounded-sm bg-brand-soft p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">
+            Feedback in {LANGUAGE_LABELS[turn.answerLanguage]}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-brand-dark">{turn.feedback.nativeLanguageFeedback}</p>
+        </div>
+      )}
+
+      {turn.answerLanguage !== "ENGLISH" && turn.feedback.modelEnglishAnswer && (
+        <EnglishPracticePanel
+          turnId={turn.id}
+          modelAnswer={turn.feedback.modelEnglishAnswer}
+          initialResult={turn.englishPractice ?? null}
+          voiceSupported={voiceSupported}
+        />
+      )}
+    </div>
+  );
+}
+
+function EnglishPracticePanel({
+  turnId,
+  modelAnswer,
+  initialResult,
+  voiceSupported,
+}: {
+  turnId: string;
+  modelAnswer: string;
+  initialResult: EnglishPractice | null;
+  voiceSupported: boolean;
+}) {
+  const [result, setResult] = useState<EnglishPractice | null>(initialResult);
+  const [attemptText, setAttemptText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
+  const [speaking, setSpeaking] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [speechInputSupported, setSpeechInputSupported] = useState(false);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSpeechInputSupported(getSpeechRecognition() !== null);
+  }, []);
+
+  function toggleRecording() {
+    const Recognition = getSpeechRecognition();
+    if (!Recognition) return;
+
+    if (recording) {
+      recognitionRef.current?.stop();
+      setRecording(false);
+      return;
+    }
+
+    setMicError(null);
+    cancelSpeech();
+    setSpeaking(false);
+    const recognition = new Recognition();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) transcript += event.results[i][0].transcript + " ";
+      }
+      if (transcript.trim()) {
+        setAttemptText((prev) => (prev ? prev + " " : "") + transcript.trim());
+      }
+    };
+    recognition.onerror = (event) => {
+      setMicError(describeRecognitionError(event.error));
+      setRecording(false);
+    };
+    recognition.onend = () => setRecording(false);
+    recognitionRef.current = recognition;
+    recognition.start();
+    setRecording(true);
+  }
+
+  async function submit() {
+    if (attemptText.trim().length === 0) return;
+    setLoading(true);
+    setError(null);
+    const res = await fetch(`/api/interview/turn/${turnId}/english-practice`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ attemptText }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setLoading(false);
+    if (!res.ok) {
+      setError(data.error ?? "Couldn't get feedback. Please try again.");
+      return;
+    }
+    setResult(data.englishPractice);
+  }
+
+  return (
+    <div className="mt-4 rounded-2xl border border-white/50 bg-white/20 p-4 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">
+        Practice this in English
+      </p>
+      <p className="mt-2 text-sm leading-6">{modelAnswer}</p>
+      {voiceSupported && (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              setVoiceError(null);
+              speak(modelAnswer, {
+                lang: "en-US",
+                onStart: () => setSpeaking(true),
+                onEnd: () => setSpeaking(false),
+                onError: (reason) => setVoiceError(describeSpeechError(reason)),
+              });
+            }}
+            disabled={speaking}
+            className="btn-secondary mt-3"
+          >
+            {speaking ? "🔊 Speaking…" : "🔊 Hear model answer"}
+          </button>
+          {voiceError && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{voiceError}</p>}
+        </>
+      )}
+
+      {!result ? (
+        <div className="mt-4">
+          <p className="text-sm text-muted">
+            Now try saying (or typing) that English version yourself.
+          </p>
+          {speechInputSupported && (
+            <button
+              type="button"
+              onClick={toggleRecording}
+              className={`mt-2 ${recording ? "btn-primary" : "btn-secondary"}`}
+            >
+              {recording ? "● Stop recording" : "🎤 Try it in English"}
+            </button>
+          )}
+          {micError && <p className="mt-1 text-xs text-red-700 dark:text-red-300">{micError}</p>}
+          <textarea
+            className="input mt-2 min-h-[90px]"
+            placeholder="Type or speak your attempt at the English version…"
+            value={attemptText}
+            onChange={(e) => setAttemptText(e.target.value)}
+          />
+          {error && <p className="mt-2 text-xs text-red-700 dark:text-red-300">{error}</p>}
+          <button
+            type="button"
+            onClick={submit}
+            className="btn-primary mt-2"
+            disabled={loading || attemptText.trim().length === 0}
+          >
+            {loading ? "Checking your English…" : "Get English feedback"}
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4">
+          <ScoreBar label="English fluency" value={result.feedback.fluencyScore} />
+          <p className="mt-3 text-sm leading-6">{result.feedback.summary}</p>
+
+          {result.feedback.corrections.length > 0 && (
+            <div className="mt-3 flex flex-col gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">
+                Corrections
+              </p>
+              {result.feedback.corrections.map((c, i) => (
+                <div key={i} className="rounded-sm bg-brand-soft p-3 text-sm">
+                  <p className="text-muted line-through decoration-red-400">{c.original}</p>
+                  <p className="mt-1">{c.suggestion}</p>
+                  <p className="mt-1 text-xs text-muted">{c.reason}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {result.feedback.possibleMispronunciations.length > 0 && (
+            <div className="mt-3 flex flex-col gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">
+                Possible pronunciation notes
+              </p>
+              <p className="text-xs text-muted">
+                Based only on how the speech-to-text transcript came out — not a precise
+                pronunciation score.
+              </p>
+              {result.feedback.possibleMispronunciations.map((m, i) => (
+                <div key={i} className="rounded-sm bg-brand-soft p-3 text-sm">
+                  <p className="font-medium">&quot;{m.word}&quot;</p>
+                  <p className="mt-1 text-muted">{m.note}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
