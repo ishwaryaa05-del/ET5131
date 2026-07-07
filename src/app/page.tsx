@@ -105,9 +105,14 @@ export default function Home() {
       <footer className="border-t border-border px-6 py-8">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-start justify-between gap-3 text-sm text-muted sm:flex-row sm:items-center">
           <span>CareerBridge ASEAN is funded by sponsor companies, not student subscriptions.</span>
-          <Link href="/about" className="text-brand hover:underline">
-            About us
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/about" className="text-brand hover:underline">
+              About us
+            </Link>
+            <Link href="/sponsor/login" className="text-brand hover:underline">
+              Sponsor login
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
