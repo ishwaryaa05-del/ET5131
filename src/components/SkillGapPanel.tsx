@@ -75,7 +75,7 @@ export function SkillGapPanel({
           <select className="input w-auto" value={resumeId} onChange={(e) => setResumeId(e.target.value)}>
             {resumes.map((r, i) => (
               <option key={r.id} value={r.id}>
-                Resume from {new Date(r.createdAt).toLocaleDateString()} {i === 0 ? "(latest)" : ""}
+                Resume from {new Date(r.createdAt).toLocaleDateString("en-US")} {i === 0 ? "(latest)" : ""}
               </option>
             ))}
           </select>
