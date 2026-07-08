@@ -41,6 +41,7 @@ export async function POST(request: Request, ctx: Ctx) {
     });
     return NextResponse.json({ ok: true, resume: updated });
   } catch (err) {
+    console.error("[resume tailor]", err);
     const message = err instanceof Error ? err.message : "Couldn't tailor resume.";
     return NextResponse.json({ error: message }, { status: 502 });
   }

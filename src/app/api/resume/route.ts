@@ -56,8 +56,13 @@ export async function POST(request: Request) {
         });
         tailoring = { ...result, jdId: jd.id };
       } catch (err) {
-        if (err instanceof AIUnavailableError) warning = err.message;
-        else warning = "Couldn't tailor against that JD right now, but your resume was saved.";
+        if (err instanceof AIUnavailableError) {
+          warning = err.message;
+        } else {
+          console.error("[resume upload] tailoring failed:", err);
+          const reason = err instanceof Error ? err.message : "unknown error";
+          warning = `Couldn't tailor against that JD right now (${reason}), but your resume was saved.`;
+        }
       }
     }
   }

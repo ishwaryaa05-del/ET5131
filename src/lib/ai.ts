@@ -60,6 +60,12 @@ async function callOnce<T>(anthropic: Anthropic, opts: { system: string; prompt:
     messages: [{ role: "user", content: opts.prompt }],
   });
 
+  if (message.stop_reason === "max_tokens") {
+    throw new Error(
+      "The AI response was cut off before it finished (hit the output length limit). Please try again."
+    );
+  }
+
   const textBlock = message.content.find((block) => block.type === "text");
   const raw = textBlock && "text" in textBlock ? textBlock.text : "";
   const fenceStripped = raw.trim().replace(/^```(json)?/i, "").replace(/```$/, "").trim();
@@ -67,11 +73,21 @@ async function callOnce<T>(anthropic: Anthropic, opts: { system: string; prompt:
   let parsedJson: unknown;
   try {
     parsedJson = JSON.parse(fenceStripped);
-  } catch {
-    parsedJson = JSON.parse(extractJsonSubstring(fenceStripped));
+  } catch (err) {
+    try {
+      parsedJson = JSON.parse(extractJsonSubstring(fenceStripped));
+    } catch {
+      console.error("[askForJSON] could not parse AI response as JSON:", raw);
+      throw err;
+    }
   }
 
-  return opts.schema.parse(parsedJson);
+  const result = opts.schema.safeParse(parsedJson);
+  if (!result.success) {
+    console.error("[askForJSON] AI response failed schema validation:", raw, result.error.message);
+    throw new Error("The AI response did not match the expected format.");
+  }
+  return result.data;
 }
 
 /** Sends a prompt and parses a strict-JSON reply against a zod schema. Retries once on a malformed/invalid response. */
@@ -240,7 +256,7 @@ export async function tailorResume(opts: {
     system: `You are a resume coach who knows hiring norms specific to ${MARKET_LABELS[opts.market]} (photo conventions, resume length, date formats, tone) as opposed to generic Western resume advice.`,
     prompt: `${marketContext(opts.market, opts.industry)}\n\nTarget job description:\n"""\n${opts.jdText}\n"""\n\nCandidate resume:\n"""\n${opts.resumeText}\n"""\n\nGive:\n1. formatSuggestions: 3-6 short, specific format fixes calibrated to ${MARKET_LABELS[opts.market]} norms (e.g. photo, length, date format, section order).\n2. contentSuggestions: 3-8 items, each quoting a weak bullet/line verbatim from the resume ("original"), a rewritten version ("suggestion") that better matches the JD and adds quantification where missing, and a one-sentence "reason".\n\nReturn JSON: { "formatSuggestions": string[], "contentSuggestions": [ { "original": string, "suggestion": string, "reason": string } ] }`,
     schema: resumeTailoringSchema,
-    maxTokens: 2500,
+    maxTokens: 4500,
   });
 }
 
