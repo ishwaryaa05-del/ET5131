@@ -22,6 +22,12 @@ export const metadata: Metadata = {
   title: "CareerGPS4u — Interview-ready for Singapore, Malaysia & Myanmar",
   description:
     "CareerGPS4u helps students and fresh graduates prep for interviews, tailor resumes, and close skill gaps for the Singapore, Malaysia, and Myanmar job markets.",
+  openGraph: {
+    title: "CareerGPS4u",
+    description:
+      "Interview-ready for the market you're actually walking into — Singapore, Malaysia, Myanmar.",
+    images: ["/logo-full.png"],
+  },
 };
 
 export default function RootLayout({

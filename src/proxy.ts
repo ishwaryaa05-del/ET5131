@@ -38,5 +38,9 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Excludes Next internals and any request for a static file (has a file
+  // extension, e.g. /logo-mark.png) — everything under /public is a public
+  // asset; actual protected downloads are served through their own
+  // authenticated route (/api/uploads/[claimId]), not raw /public files.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };
