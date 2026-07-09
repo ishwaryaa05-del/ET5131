@@ -6,9 +6,9 @@
   --card: #fbf8f2;
   --border: #ddd2bd;
   --muted: #71675a;
-  --brand: #a1462a;
-  --brand-dark: #7c3520;
-  --brand-soft: #f0dfce;
+  --brand: #2b5f8f;
+  --brand-dark: #1d425e;
+  --brand-soft: #dce7f0;
   --accent: #35615c;
 }
 
@@ -34,9 +34,9 @@
     --card: #241e17;
     --border: #3c3226;
     --muted: #a99d89;
-    --brand: #d9814f;
-    --brand-dark: #ab5c34;
-    --brand-soft: #34281d;
+    --brand: #6fa8dc;
+    --brand-dark: #4a83b8;
+    --brand-soft: #1c2e3d;
     --accent: #6ba39c;
   }
 }
@@ -125,7 +125,7 @@ h3 {
     @apply rounded-2xl border border-white/50 bg-card/35 backdrop-blur-xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),0_10px_30px_-14px_rgba(36,26,15,0.25)] dark:border-white/10 dark:bg-card/30 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_10px_30px_-14px_rgba(0,0,0,0.55)];
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-brand/85 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_6px_18px_-8px_rgba(124,53,32,0.55)] hover:bg-brand-dark/90 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-brand/85 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.35),0_6px_18px_-8px_rgba(29,66,94,0.55)] hover:bg-brand-dark/90 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10;
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/50 bg-white/20 px-4 py-2.5 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:border-brand hover:bg-white/35 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10;
