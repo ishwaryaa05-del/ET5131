@@ -1,4 +1,4 @@
-// CareerBridge data model
+// CareerGPS4u data model
 
 generator client {
   provider = "prisma-client"

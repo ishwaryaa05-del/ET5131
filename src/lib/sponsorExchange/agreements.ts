@@ -9,15 +9,15 @@ import type { TaskTierValue } from "@/lib/sponsorExchange/constants";
  */
 export const AGREEMENTS: Record<TaskTierValue, { version: number; title: string; text: string }> = {
   VISIBILITY: {
-    version: 1,
+    version: 2,
     title: "Content Release Agreement (Tier 1 · Visibility)",
     text: `This is a content release, not a non-disclosure agreement — it does not restrict what you can say or share.
 
 By submitting this task, you confirm that:
 
 1. The content you're submitting (e.g. a post, article, or public write-up) is your own original work.
-2. You grant CareerBridge ASEAN and the sponsoring company a non-exclusive, royalty-free right to reshare, quote, or reference your submitted content for promotional and reporting purposes, with credit to you.
-3. Your content does not contain defamatory, misleading, or knowingly false claims about the sponsor, CareerBridge ASEAN, or any third party.
+2. You grant CareerGPS4u and the sponsoring company a non-exclusive, royalty-free right to reshare, quote, or reference your submitted content for promotional and reporting purposes, with credit to you.
+3. Your content does not contain defamatory, misleading, or knowingly false claims about the sponsor, CareerGPS4u, or any third party.
 4. You are not disclosing any confidential or non-public information about the sponsor unless the sponsor has explicitly told you it's shareable.
 
 This agreement does not create any employment relationship, and does not obligate you to keep anything confidential beyond what's stated above.`,
@@ -37,7 +37,7 @@ By submitting this task, you agree that:
 This agreement does not create any employment relationship. Your feedback submission itself is treated as your completed proof of work — no separate verification step is required.`,
   },
   APPLIED_PROJECT: {
-    version: 1,
+    version: 2,
     title: "Applied Project Agreement (Tier 3 · Applied Project)",
     text: `This task involves a scoped deliverable (e.g. a document, deck, or dataset) capped at a fixed number of hours. It is a bounded learning project, not a job.
 
@@ -48,7 +48,7 @@ By submitting this task, you agree that:
 3. This is explicitly NOT an employment relationship and NOT "work made for hire" in the legal sense of ongoing employment — it is a single, hour-capped learning exchange. Completing this task does not make you an employee, contractor, or agent of the sponsor, and does not entitle you to wages, benefits, or continued work.
 4. The scope is limited to what's described in the task; the sponsor will not ask you to exceed the stated hour cap for this task.
 
-Access granted through CareerBridge ASEAN in exchange for this task is never contingent on further work — it is a one-time exchange for this specific, bounded deliverable.`,
+Access granted through CareerGPS4u in exchange for this task is never contingent on further work — it is a one-time exchange for this specific, bounded deliverable.`,
   },
 };
 

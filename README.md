@@ -1,4 +1,4 @@
-# CareerBridge
+# CareerGPS4u
 
 A career-prep platform for ASEAN university students and fresh graduates. Paste a job
 description and get interview questions, dual-language interview coaching, resume

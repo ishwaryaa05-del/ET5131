@@ -26,7 +26,7 @@ export default async function SponsorDashboardPage() {
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight">{sponsor.companyName}</h1>
-      <p className="mt-1 text-sm text-muted">Your CareerBridge ASEAN sponsor overview.</p>
+      <p className="mt-1 text-sm text-muted">Your CareerGPS4u sponsor overview.</p>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="card p-5">

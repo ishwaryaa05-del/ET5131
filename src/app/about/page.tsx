@@ -33,7 +33,7 @@ export default async function AboutPage() {
             Our story
           </p>
           <p className="mt-3 text-base leading-7">
-            CareerBridge ASEAN started with a small group of university students who were applying to
+            CareerGPS4u started with a small group of university students who were applying to
             jobs ourselves — and finding it a lot harder than we expected. The more we compared
             notes, the more one pattern stood out: the international students in our own group,
             some of the sharpest people we knew, kept losing offers not because their thinking was
@@ -92,7 +92,7 @@ export default async function AboutPage() {
           <section>
             <h2 className="font-serif text-xl font-semibold">Who pays for it</h2>
             <p className="mt-3 text-muted">
-              CareerBridge ASEAN is free for students, always. Instead of a subscription, the platform is
+              CareerGPS4u is free for students, always. Instead of a subscription, the platform is
               funded by sponsor companies in exchange for small, defined touchpoints with our
               talent pool — a short reflection post on what a student learned, structured feedback
               on a company&apos;s internal tool, or a scoped mini-project like a market scan. Every
@@ -107,7 +107,7 @@ export default async function AboutPage() {
               courses toward developing and hosting our own courses for university students — still
               funded by partners, never paid for by students. From there, we plan to build local
               centres where students can access devices, structured practice space, and in-person
-              support, extending CareerBridge ASEAN beyond students who already have reliable internet
+              support, extending CareerGPS4u beyond students who already have reliable internet
               and personal laptops. Eventually, the same course infrastructure extends to secondary
               school students in underserved markets, helping close broader literacy and
               education-access gaps across the region.

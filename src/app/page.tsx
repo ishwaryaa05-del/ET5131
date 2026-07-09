@@ -84,7 +84,7 @@ export default function Home() {
             <p className="text-sm text-muted">
               Dual-Tongue coaching closes that gap — read the{" "}
               <Link href="/about" className="text-brand hover:underline">
-                full story behind CareerBridge ASEAN
+                full story behind CareerGPS4u
               </Link>
               .
             </p>
@@ -104,7 +104,7 @@ export default function Home() {
 
       <footer className="border-t border-border px-6 py-8">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-start justify-between gap-3 text-sm text-muted sm:flex-row sm:items-center">
-          <span>CareerBridge ASEAN is funded by sponsor companies, not student subscriptions.</span>
+          <span>CareerGPS4u is funded by sponsor companies, not student subscriptions.</span>
           <div className="flex items-center gap-4">
             <Link href="/about" className="text-brand hover:underline">
               About us
